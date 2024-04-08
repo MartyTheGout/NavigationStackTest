@@ -20,15 +20,31 @@ struct TestNavigationStack: View {
                 NavigationLink("스크린 4", value: 4)
             }
             .navigationDestination(for: Int.self) { value in
-                makingSubNavigationLinks(pathValue: value)
+                makingSubNavigationLinks(pathValue: value, path: $path)
             }
+            .frame(height: AppSizeStandard.height)
+            
+            VStack {
+                Spacer()
+                ForEach (self.path, id: \.self) { value in
+                    Text("스크린 \(value)")
+                        .background(
+                            RoundedRectangle(cornerRadius: /*@START_MENU_TOKEN@*/25.0/*@END_MENU_TOKEN@*/)
+                                .fill(.red)
+                        )
+                }
+            }
+            .frame(height: AppSizeStandard.height)
+            
         }
     }
 }
 
 @ViewBuilder
-func makingSubNavigationLinks (pathValue : Int) -> some View {
-    var subPathValue = pathValue * 4
+func makingSubNavigationLinks (pathValue : Int, path: Binding<[Int]>) -> some View {
+    let subPathValue = pathValue * 4
+    var reversedPathForView:[Int] = path.wrappedValue.reversed()
+    
     
     VStack {
         NavigationLink("스크린 \(subPathValue + 1)", value: subPathValue + 1)
@@ -36,9 +52,26 @@ func makingSubNavigationLinks (pathValue : Int) -> some View {
         NavigationLink("스크린 \(subPathValue + 3)", value: subPathValue + 3)
         NavigationLink("스크린 \(subPathValue + 4)", value: subPathValue + 4)
     }
-    .navigationDestination(for: Int.self) { value in
-        
-    }
+    .frame(height: AppSizeStandard.height)
+    
+    
+    VStack {
+        ForEach (Binding<[Int]> (
+            get: {reversedPathForView},
+            set: {p in reversedPathForView = p}
+        ), id: \.self) { value in
+            
+            let colorIndex = value.wrappedValue % 4
+            
+            RoundedRectangle(cornerRadius: 15)
+                .fill(AppSizeStandard.colorArray[colorIndex])
+                .frame(width: .infinity, height: 50)
+                .overlay {
+                    Text("스크린 \(value.wrappedValue)")
+                }
+                .padding([.leading, .trailing])
+        }
+    }.frame(height: AppSizeStandard.height)
     
 }
 
